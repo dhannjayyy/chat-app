@@ -15,7 +15,8 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "rsuite": "^4.10.2",
-    "sass": "^1.53.0"
+    "sass": "^1.53.0",
+    "timeago-react": "^3.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
