@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 
-import React, { useState, createContext, useEffect } from "react";
+import React, { useState, createContext, useEffect,useContext } from "react";
 import { database } from "../misc/firebase";
 import { transFormToArrWithId } from "../misc/helpers";
 
@@ -21,9 +21,11 @@ export const RoomsProvider = ({ children }) => {
             roomListRef.off();
         }
     },[]);
-
     return <RoomsContext.Provider value={rooms}>
         {children}
     </RoomsContext.Provider>
+}
 
+export const useRooms = () =>{
+   return useContext(RoomsContext);
 }
