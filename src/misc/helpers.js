@@ -8,6 +8,11 @@ export function getNameInitials(name) {
     return splitName[0][0];
 }
 
+
+export function transFormToArr(snapVal){
+    return snapVal ? Object.keys(snapVal) : []
+}
+
 export function transFormToArrWithId(snapVal) {
     return snapVal ? Object.keys(snapVal).map(value => {
         return { ...snapVal[value], id: value };
