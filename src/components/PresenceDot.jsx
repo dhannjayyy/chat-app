@@ -1,4 +1,3 @@
-import { getByText } from '@testing-library/react';
 import React from 'react'
 import { Tooltip, Whisper, Badge } from 'rsuite';
 import { usePresence } from '../misc/customHooks'
@@ -20,7 +19,7 @@ const getText = (presence) => {
         return 'Unknown state';
     }
 
-    return presence.state === 'online' ? 'Online' : `Last online ${new Date(presence.last_changed).toLocalDateString()}`
+    return presence.state === 'online' ? 'Online' : `Last online ${new Date(presence.last_changed).toLocaleDateString()}`
 }
 
 const PresenceDot = ({ uid }) => {
