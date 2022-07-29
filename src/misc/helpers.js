@@ -17,7 +17,7 @@ export function transFormToArrWithId(snapVal) {
 export async function getUserUpdates(userId,keyToUpdate,value,db){
     const updates={};
 
-    updates[`/profile/${userId}/${keyToUpdate}`] = value;
+    updates[`/profiles/${userId}/${keyToUpdate}`] = value;
 
     // Getting the msgs for the updated user
     const getMsgs = db.ref('/messages').orderByChild('author/uid').equalTo(userId).once('value');
