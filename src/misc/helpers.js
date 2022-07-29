@@ -13,3 +13,30 @@ export function transFormToArrWithId(snapVal) {
         return { ...snapVal[value], id: value };
     }) : [];
 }
+
+export async function getUserUpdates(userId,keyToUpdate,value,db){
+    const updates={};
+
+    updates[`/profile/${userId}/${keyToUpdate}`] = value;
+
+    // Getting the msgs for the updated user
+    const getMsgs = db.ref('/messages').orderByChild('author/uid').equalTo(userId).once('value');
+
+    // Getting rooms for the updated user
+    const getRooms = db.ref('/rooms').orderByChild('lastMessage/author/uid').equalTo(userId).once('value')
+
+    const [mSnap, rSnap] = await Promise.all([getMsgs, getRooms]);
+
+        // FEtching the message object key to update all the references for the updated user
+
+    mSnap.forEach(msgSnap =>{
+        updates[`/messages/${msgSnap.key}/author/${keyToUpdate}`] = value;
+    } )
+
+     // FEtching the rooms object key to update all the references for the updated user
+    rSnap.forEach(roomSnap =>{
+        updates[`/rooms/${roomSnap.key}/lastMessage/author/${keyToUpdate}`] = value;
+    } )
+
+    return updates;
+}

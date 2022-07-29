@@ -4,32 +4,33 @@ import React, { useState, useRef } from 'react'
 import { Modal, Button, Alert } from 'rsuite'
 import AvatarEditor from 'react-avatar-editor'
 import { useModalState } from '../../misc/customHooks';
-import { database,storage } from '../../misc/firebase'
+import { database, storage } from '../../misc/firebase'
 import { useProfile } from '../../context/profile.context';
 import ProfileAvatar from '../ProfileAvatar';
+import { getUserUpdates } from '../../misc/helpers';
 
 const fileInputTypes = ".png, .jpeg, .jpg";
 const acceptedFileTypes = ['image/png', 'image/jpeg', 'image/pjpeg'];
 const isValidFile = (file) => acceptedFileTypes.includes(file.type);
-const getBlob = (canvas) =>{
-    return new Promise( (resolve,reject)=>{
-        canvas.toBlob((blob)=>{
+const getBlob = (canvas) => {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
             try {
-                if(blob){
+                if (blob) {
                     resolve(blob);
                 }
             } catch (error) {
                 reject(new Error('File process error'));
             }
-        }) 
-    } )
+        })
+    })
 }
 
 const AvatarUploadBtn = () => {
     const [image, setImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const avatarEditoRef = useRef();
-    const {profile} = useProfile();
+    const { profile } = useProfile();
 
     const { isOpen, closeDrawer, openDrawer } = useModalState();
     const onFileInputChange = (ev) => {
@@ -52,27 +53,31 @@ const AvatarUploadBtn = () => {
         try {
             const blob = await getBlob(canvas);
             const avatarFileRef = storage.ref(`/profiles/${profile.uid}`).child('avatar');
-            
-            const uploadAvatarResult = await avatarFileRef.put(blob,{
-                cacheControl : `public, max-age=${3600 * 24 * 3}`
+
+            const uploadAvatarResult = await avatarFileRef.put(blob, {
+                cacheControl: `public, max-age=${3600 * 24 * 3}`
             });
 
             const downloadURL = await uploadAvatarResult.ref.getDownloadURL();
-            const userAvatarRef = database.ref(`/profiles/${profile.uid}`).child('avatar');
-            await userAvatarRef.set(downloadURL);
+
+            const updates = await getUserUpdates(profile.uid, 'avatar', downloadURL, database);
+
+            await database.ref().update(updates)
+            Alert.success('Nichname has been updated', 4000);
+
 
             setIsLoading(false);
-            Alert.info('Avatar has been uploaded',4000); 
-            
+            Alert.info('Avatar has been uploaded', 4000);
+
         } catch (error) {
             setIsLoading(false);
-            Alert.error(error.message,4000); 
+            Alert.error(error.message, 4000);
         }
     }
 
     return (
         <div className='mt-3 text-center'>
-        <ProfileAvatar src={profile.avatar} name={profile.name} className="width-200 height-200 img-fullsize font-huge"/>
+            <ProfileAvatar src={profile.avatar} name={profile.name} className="width-200 height-200 img-fullsize font-huge" />
             <div>
                 <label htmlFor='avatar-upload' className='d-block cursor-pointer padded'>
                     Select new avatar
