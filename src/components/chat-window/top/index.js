@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useMediaQuery } from '../../../misc/customHooks';
 import { useCurrentRoom } from '../../../context/current-room.context'
 import RoomInfoBtnModal from './RoomInfoBtnModal';
+import EditRoomBtnDrawer from './EditRoomBtnDrawer';
 
 const ChatTop = () => {
   const name = useCurrentRoom(value => value.name);
@@ -17,7 +18,7 @@ const ChatTop = () => {
             {name}
           </span>
         </h4>
-        <ButtonToolbar className='white-space:no-wrap'>todo</ButtonToolbar>
+        <ButtonToolbar className='white-space:no-wrap'><EditRoomBtnDrawer /></ButtonToolbar>
       </div>
       <div className='d-flex justify-content-between align-items-center'>
         <span>todo</span>
