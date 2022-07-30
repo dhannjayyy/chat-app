@@ -10,7 +10,7 @@ import { useHover, useMediaQuery } from '../../../misc/customHooks';
 import IconBtnControl from './IconBtnControl';
 
 
-const MessageItem = ({ message, handleAdmin,handleLike, likes, likeCount }) => {
+const MessageItem = ({ message, handleAdmin,handleLike, likes, likeCount,handleDelete }) => {
   const { author, createdAt, text } = message;
 
   const [selfRef, isHovered] = useHover()
@@ -50,6 +50,15 @@ const MessageItem = ({ message, handleAdmin,handleLike, likes, likeCount }) => {
           onClick={() => handleLike(message.id)}
           badgeContent={likeCount}
         />
+        {
+          isAuthor &&
+          <IconBtnControl
+          isVisible={canShowIcons}
+          iconName="close"
+          tooltip="Delete this message"
+          onClick={() => handleDelete(message.id)}
+        />
+        }
       </div>
       <div>
         <span className='word-break-all'>{text}</span>
