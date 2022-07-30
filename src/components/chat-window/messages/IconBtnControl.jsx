@@ -10,7 +10,7 @@ const IconBtnControl = ({
     isVisible,
     iconName,
     tooltip,
-    onCLick,
+    onclick,
     badgeContent,
     ...props }) => {
 
@@ -24,11 +24,11 @@ const IconBtnControl = ({
                     delayShow={0}
                     delayHide={0}
                     trigger="hover"
-                speaker={<Tooltip>{tooltip}</Tooltip>}
+                    speaker={<Tooltip>{tooltip}</Tooltip>}
                 >
                     <IconButton
                         {...props}
-                        onClick={onCLick}
+                        onClick={onclick}
                         circle
                         size="xs"
                         icon={<Icon icon={iconName} />}

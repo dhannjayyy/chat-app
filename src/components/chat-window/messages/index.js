@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router';
 import { Alert } from 'rsuite'
-import { database } from '../../../misc/firebase';
+import { database,auth } from '../../../misc/firebase';
 import { transFormToArrWithId } from '../../../misc/helpers';
 import MessageItem from './MessageItem';
 
@@ -44,6 +44,35 @@ const Messages = () => {
 
     Alert.info(alertMsg,4000)
   }, [chatId])
+
+const handleLike = useCallback(async (msgId )=>{
+  const {uid} = auth.currentUser;
+  const messageRef = database.ref(`messagess/${msgId}`);
+
+  let alertMsg;
+ 
+  await messageRef.transaction(msg => {
+    if (msg) {
+      if (msg.likes && msg.likes[uid]) {
+        msg.likesCount -= 1;
+        msg.likes[uid] = null;
+        alertMsg = 'Like Removed'
+      } else {
+        msg.likesCount += 1;
+
+        if(!msg.likes){
+          msg.likes = {};
+        }
+
+        msg.likes[uid] = true;
+        alertMsg = 'Like added'
+      }
+    }
+    return msg;
+  });
+
+  Alert.info(alertMsg,4000)
+},[])
 
   return (
     <ul className='msg-list custom-scroll '>
