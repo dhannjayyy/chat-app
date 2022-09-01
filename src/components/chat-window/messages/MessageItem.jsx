@@ -10,8 +10,8 @@ import { useHover, useMediaQuery } from '../../../misc/customHooks';
 import IconBtnControl from './IconBtnControl';
 
 
-const MessageItem = ({ message, handleAdmin,handleLike, likes, likeCount,handleDelete }) => {
-  const { author, createdAt, text } = message;
+const MessageItem = ({ message, handleAdmin,handleLike, handleDelete }) => {
+  const { author, createdAt, text,likes, likeCount, } = message;
 
   const [selfRef, isHovered] = useHover()
   const isMobile = useMediaQuery('(max-width:992px)')
@@ -44,12 +44,12 @@ const MessageItem = ({ message, handleAdmin,handleLike, likes, likeCount,handleD
         &nbsp;&nbsp;<TimeAgo datetime={createdAt} className='font-normal text-black-45' />
 
         <IconBtnControl
-        {...(true ? {color :'red'}: {})}
-          isVisible
+        {...(isLiked ? {color :'red'}: {})}
+          isVisible={canShowIcons}
           iconName="heart"
           tooltip="Like this message"
-          onClick={()=>{}}
-          badgeContent={5}
+          onClick={()=> handleLike(message.id)}
+          badgeContent={likeCount}
         />
         {
           isAuthor &&
