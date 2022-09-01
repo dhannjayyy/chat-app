@@ -42,13 +42,14 @@ const MessageItem = ({ message, handleAdmin,handleLike, likes, likeCount,handleD
           }
         </ProfileInfoBtnModal>
         &nbsp;&nbsp;<TimeAgo datetime={createdAt} className='font-normal text-black-45' />
+
         <IconBtnControl
-          {...(isLiked ? { color: 'red' } : {})}
-          isVisible={canShowIcons}
+        {...(true ? {color :'red'}: {})}
+          isVisible
           iconName="heart"
           tooltip="Like this message"
-          onClick={() => handleLike(message.id)}
-          badgeContent={likeCount}
+          onClick={()=>{}}
+          badgeContent={5}
         />
         {
           isAuthor &&

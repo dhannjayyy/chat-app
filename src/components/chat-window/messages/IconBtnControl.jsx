@@ -1,45 +1,41 @@
 import React from 'react'
-import { Badge, Whisper, IconButton, Icon,Tooltip } from 'rsuite'
+import { Badge, Tooltip, Whisper, IconButton, Icon } from 'rsuite';
 
-const ConditionalBadge = ({ condition, children }) => {
-    return condition ? <Badge content={children} /> : children;
+const ConditionalBadge = ({condition, children}) =>{
+    return condition ? <Badge content={condition}>{children}</Badge> : children;
 }
-
 
 const IconBtnControl = ({
     isVisible,
     iconName,
     tooltip,
-    onclick,
+    onClick,
     badgeContent,
-    ...props }) => {
+    ...props 
+}) => {
+  return (
+    <div className='ml-2' style={{visibility: isVisible ? 'visible' : 'hidden'}}>
+       <ConditionalBadge condition={badgeContent}>
+       <Whisper
+       placement="top"
+       delay={0}
+       delayHide={0}
+       DelayShow={0}
+       trigger="hover"
+       speaker={<Tooltip>{tooltip}</Tooltip>}
+       >
+       <IconButton 
+       {...props}
+       onClick={onClick}
+       circle
+       size="xs"
+       icon={<Icon icon={iconName}/>}
+       />
 
-    return (
-        <div className='ml-2' style={{ visibility: isVisible ? 'visible' : 'hidden' }}>
-
-            <ConditionalBadge condtition={badgeContent}>
-                <Whisper
-                    placement="top"
-                    delay={0}
-                    delayShow={0}
-                    delayHide={0}
-                    trigger="hover"
-                    speaker={<Tooltip>{tooltip}</Tooltip>}
-                >
-                    <IconButton
-                        {...props}
-                        onClick={onclick}
-                        circle
-                        size="xs"
-                        icon={<Icon icon={iconName} />}
-                    />
-
-
-                </Whisper>
-            </ConditionalBadge>
-
-        </div>
-    )
+       </Whisper>
+       </ConditionalBadge>
+    </div>
+  )
 }
 
 export default IconBtnControl
