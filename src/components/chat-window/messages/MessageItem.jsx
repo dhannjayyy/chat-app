@@ -28,7 +28,7 @@ const MessageItem = ({ message, handleAdmin,handleLike, handleDelete }) => {
 
 
   return (
-    <li className={`padded mb-1 cursor-pointer ${isHovered} ? 'bg-black-02':''`} ref={selfRef}>
+    <li className={`padded mb-1 cursor-pointer ${isHovered ? 'bg-black-02':''}`} ref={selfRef}>
       <div className='d-flex align-items-center font-bolder mb-1'>
 
         <PresenceDot uid={author.uid} />
