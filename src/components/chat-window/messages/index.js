@@ -3,8 +3,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router';
 import { Alert } from 'rsuite'
-import { database,auth, storage } from '../../../misc/firebase';
-import { transFormToArrWithId } from '../../../misc/helpers';
+import { database, auth, storage } from '../../../misc/firebase';
+import { transFormToArrWithId, groupBy } from '../../../misc/helpers';
 import MessageItem from './MessageItem';
 
 const Messages = () => {
@@ -28,28 +28,28 @@ const Messages = () => {
 
   const handleAdmin = useCallback(
     async (uid) => {
-    const adminRefs = database.ref(`rooms/${chatId}/admins`);
+      const adminRefs = database.ref(`rooms/${chatId}/admins`);
 
-    let alertMsg;
+      let alertMsg;
 
-    await adminRefs.transaction(admins => {
-      if (admins) {
-        if (admins[uid]) {
-          admins[uid] = null;
-          alertMsg = 'Admin permission removed'
-        } else {
-          admins[uid] = true;
-          alertMsg = 'Admin permission granted'
+      await adminRefs.transaction(admins => {
+        if (admins) {
+          if (admins[uid]) {
+            admins[uid] = null;
+            alertMsg = 'Admin permission removed'
+          } else {
+            admins[uid] = true;
+            alertMsg = 'Admin permission granted'
+          }
         }
-      }
-      return admins;
-    });
+        return admins;
+      });
 
-    Alert.info(alertMsg,4000);
-  }, [chatId]);
+      Alert.info(alertMsg, 4000);
+    }, [chatId]);
 
-  const handleLike = useCallback(async (msgId)=>{
-    const{ uid } = auth.currentUser;
+  const handleLike = useCallback(async (msgId) => {
+    const { uid } = auth.currentUser;
     const messageRef = database.ref(`messages/${msgId}`);
 
     let alertMsg;
@@ -63,7 +63,7 @@ const Messages = () => {
         } else {
           msg.likeCount += 1;
 
-          if(!msg.likes){
+          if (!msg.likes) {
             msg.likes = {};
           }
 
@@ -74,53 +74,78 @@ const Messages = () => {
       return msg;
     });
 
-    Alert.info(alertMsg,4000);
-  },[])
+    Alert.info(alertMsg, 4000);
+  }, [])
 
-const handleDelete = useCallback(async (msgId, file)=>{
-  if( !window.confirm('Delete this message ? ')){
-    return;
-  }
-  const isLast = messages[messages.length - 1].id === msgId;
-  const updates = {};
-
-  updates[`/messages/${msgId}`] = null;
-
-  if(isLast && messages.length>1){
-    updates[`/rooms/${chatId}/lastMessage`] = {
-      ...messages[messages.length - 2],
-      msgId : messages[messages.length - 2].id
+  const handleDelete = useCallback(async (msgId, file) => {
+    if (!window.confirm('Delete this message ? ')) {
+      return;
     }
-  }
+    const isLast = messages[messages.length - 1].id === msgId;
+    const updates = {};
 
-  if(isLast && messages.length === 1){
-    updates[`/rooms/${chatId}/lastMessage`] = null; 
-  }
+    updates[`/messages/${msgId}`] = null;
 
-  try {
-    await database.ref().update(updates);
-    Alert.info('Message has been deleted')
-  } catch (error) {
-    return Alert.error(error.message)
-  }
+    if (isLast && messages.length > 1) {
+      updates[`/rooms/${chatId}/lastMessage`] = {
+        ...messages[messages.length - 2],
+        msgId: messages[messages.length - 2].id
+      }
+    }
 
-  if(file){
+    if (isLast && messages.length === 1) {
+      updates[`/rooms/${chatId}/lastMessage`] = null;
+    }
+
     try {
-      const fileRef = storage.refFromURL(file.url)
-      await fileRef.delete();
+      await database.ref().update(updates);
+      Alert.info('Message has been deleted')
     } catch (error) {
-      Alert.error(error.message);
+      return Alert.error(error.message)
     }
-  }
 
-},[chatId,messages])
+    if (file) {
+      try {
+        const fileRef = storage.refFromURL(file.url)
+        await fileRef.delete();
+      } catch (error) {
+        Alert.error(error.message);
+      }
+    }
+
+  }, [chatId, messages])
+
+  const renderMessages = () => {
+    const groups = groupBy(messages, item =>
+      new Date(item.createdAt).toDateString());
+
+    // eslint-disable-next-line prefer-const
+    let items = [];
+    Object.keys(groups).forEach((date) => {
+      items.push(<li className='text-center mb-1 padded'>{date}</li>)
+      const msgs = groups[date].map(msg => (
+        <MessageItem
+          key={msg.id}
+          message={msg}
+          handleAdmin={handleAdmin}
+          handleLike={handleLike}
+          handleDelete={handleDelete}
+        />
+      ));
+      items.push(...msgs);
+      // items.concat(msgs);
+    });
+
+    return items;
+  };
+
+
 
   return (
     <ul className='msg-list custom-scroll '>
 
       {isChatEmpty && <li>No messages yet</li>}
-      {canShowMessages && messages.map(msg => (<MessageItem key={msg.id} message={msg} handleAdmin={handleAdmin} handleLike={handleLike} handleDelete={handleDelete}/>))}
-
+      {canShowMessages && renderMessages()}
     </ul>
   )
 }
