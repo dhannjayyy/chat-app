@@ -31,8 +31,8 @@ const AttachmentBtnModal = ({ afterUpload }) => {
 
             const shapePromises = uploadSnapshots.map(async snap => {
                 return {
-                    contentType: snap.metadata.name,
-                    name: snap.metadata.name,
+                    contentType: snap.metadata.contentType,
+                    name: snap.metadata.name.replace("function now() { [native code] }",""),
                     url: await snap.ref.getDownloadURL()
                 }
             })
