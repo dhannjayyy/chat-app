@@ -47,7 +47,6 @@ export async function getUserUpdates(userId,keyToUpdate,value,db){
 }
 
 
-// groupBy(messages, (msgItem)=> msgItem.createAt)
    
 
 export function groupBy(array, groupingKeyFn){

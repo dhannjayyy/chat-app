@@ -2,29 +2,51 @@
 /* eslint-disable no-alert */
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router';
-import { Alert } from 'rsuite'
+import { Alert, Button } from 'rsuite'
 import { database, auth, storage } from '../../../misc/firebase';
 import { transFormToArrWithId, groupBy } from '../../../misc/helpers';
 import MessageItem from './MessageItem';
 
+const PAGE_SIZE = 15
+
 const Messages = () => {
+  const [limit, setLimit] = useState(PAGE_SIZE)
   const { chatId } = useParams()
   const [messages, setMessages] = useState(null);
+  
   const isChatEmpty = messages && messages.length === 0;
   const canShowMessages = messages && messages.length > 0;
-
-  useEffect(() => {
-    const messageRef = database.ref('/messages');
-    messageRef.orderByChild('roomId').equalTo(chatId).on('value', (snap) => {
-
+  const messageRef = database.ref('/messages');
+  
+  const loadMessages = useCallback((limitToLast) => {
+    
+    messageRef.off();
+    messageRef
+    .orderByChild('roomId')
+    .equalTo(chatId)
+    .limitToLast(limitToLast || PAGE_SIZE)
+    .on('value', snap => {
+  
       const data = transFormToArrWithId(snap.val());
       setMessages(data);
+    });
+    
+    
+    // setLimit(p => p + PAGE_SIZE)
+  }, [chatId,messageRef]);
+  
+  
+  const onLoadMore = useCallback(()=>{
+      loadMessages(limit)
+  },[loadMessages,limit])
 
-    })
+  useEffect(() => {
+    loadMessages();
+
     return () => {
       messageRef.off('value');
     }
-  }, [chatId])
+  }, [loadMessages,messageRef])
 
   const handleAdmin = useCallback(
     async (uid) => {
@@ -50,11 +72,11 @@ const Messages = () => {
 
   const handleLike = useCallback(async (msgId) => {
     const { uid } = auth.currentUser;
-    const messageRef = database.ref(`messages/${msgId}`);
+    const messagesRef = database.ref(`messages/${msgId}`);
 
     let alertMsg;
 
-    await messageRef.transaction(msg => {
+    await messagesRef.transaction(msg => {
       if (msg) {
         if (msg.likes && msg.likes[uid]) {
           msg.likeCount -= 1;
@@ -143,7 +165,9 @@ const Messages = () => {
 
   return (
     <ul className='msg-list custom-scroll '>
-
+    {messages && messages.length >= PAGE_SIZE && (<li className='text-centre mt-2 mb-2'>
+      <Button onClick={onLoadMore} color="green">Load more</Button>
+    </li>)}
       {isChatEmpty && <li>No messages yet</li>}
       {canShowMessages && renderMessages()}
     </ul>
